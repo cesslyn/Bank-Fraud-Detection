@@ -2,6 +2,14 @@
 
 An anomaly detection project on bank transaction data, using unsupervised machine learning to flag transactions that behave differently from typical account activity.
 
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat&logo=numpy&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikitlearn&logoColor=white)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-11557C?style=flat&logo=python&logoColor=white)
+![Seaborn](https://img.shields.io/badge/Seaborn-4C72B0?style=flat&logo=python&logoColor=white)
+![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=white)
+
 ## Overview
 
 This project explores a bank transaction dataset and identifies transactions that look unusual enough to warrant review. The dataset does not include a fraud label, so the project is framed as **unsupervised anomaly detection** rather than supervised fraud classification — a transaction flagged as anomalous is not automatically fraud, but it is a reasonable candidate for further investigation.
@@ -45,9 +53,7 @@ Transactions flagged as anomalies tend to show a higher deviation from the accou
 
 ## Tech Stack
 
-- Python, pandas, NumPy
-- scikit-learn (IsolationForest, DBSCAN, PCA, StandardScaler)
-- matplotlib, seaborn
+- **scikit-learn models used:** IsolationForest, DBSCAN, PCA, StandardScaler
 
 ## Project Structure
 
