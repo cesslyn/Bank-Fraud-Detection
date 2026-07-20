@@ -91,12 +91,7 @@ Bank Fraud Detection/
 │
 ├── dataset/
 │   └── bank_transactions_data.csv  # Source transaction dataset
-│
-├── image/
-│   └── notebook_screenshot.png     # Notebook preview image
-│
 ├── README.md
-└── requirements.txt
 ```
 
 ---
