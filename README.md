@@ -1,87 +1,178 @@
-# Bank Transaction Fraud Detection
+<h1 align="center">🏦 Bank Transaction Fraud Detection</h1>
 
-An anomaly detection project on bank transaction data, using unsupervised machine learning to flag transactions that behave differently from typical account activity.
+<p align="center">
+  Unsupervised anomaly detection on bank transaction data, engineering account-level behavioral features and validating results through synthetic fraud injection.
+</p>
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
-![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=white)
-![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat&logo=numpy&logoColor=white)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=flat&logo=scikitlearn&logoColor=white)
-![Matplotlib](https://img.shields.io/badge/Matplotlib-11557C?style=flat&logo=python&logoColor=white)
-![Seaborn](https://img.shields.io/badge/Seaborn-4C72B0?style=flat&logo=python&logoColor=white)
-![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat&logo=jupyter&logoColor=white)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" alt="Pandas" />
+  <img src="https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white" alt="scikit-learn" />
+  <img src="https://img.shields.io/badge/Matplotlib-11557C?style=for-the-badge&logo=python&logoColor=white" alt="Matplotlib" />
+</p>
 
-## Overview
+<p align="center">
+  <img src="image/notebook_screenshot.png" width="700" alt="Fraud detection notebook screenshot" />
+</p>
 
-This project explores a bank transaction dataset and identifies transactions that look unusual enough to warrant review. The dataset does not include a fraud label, so the project is framed as **unsupervised anomaly detection** rather than supervised fraud classification — a transaction flagged as anomalous is not automatically fraud, but it is a reasonable candidate for further investigation.
+<br>
 
-**Dataset:** [Bank Transaction Dataset for Fraud Detection](https://www.kaggle.com/datasets/valakhorasani/bank-transaction-dataset-for-fraud-detection) (Kaggle) — 2,512 synthetic transactions across 16 original features.
+## 📑 Table of Contents
 
-## Project Workflow
+- [✨ Features](#-features)
+- [📊 Model Performance](#-model-performance)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📂 Project Structure](#-project-structure)
+- [🚀 Getting Started](#-getting-started)
+- [🗄️ Dataset](#️-dataset)
+- [🤝 Contributing](#-contributing)
+- [🐛 Issues](#-issues)
 
-1. **Data Preview & Quality Checks** — inspected structure, checked for missing values, duplicates, and outliers (IQR method)
-2. **Exploratory Data Analysis** — distribution analysis, skewness checks, and correlation heatmap across numerical and categorical features
-3. **Feature Engineering** — derived behavior-based features per account, including:
-   - Time-based features (transaction hour, day of week, hours since previous transaction)
-   - Amount deviation from the account's own historical average (z-score)
-   - New device / new location flags
-   - Transaction amount to account balance ratio
-4. **Anomaly Detection** — applied and compared two unsupervised models:
-   - **Isolation Forest** (primary model)
-   - **DBSCAN** (secondary, density-based comparison)
-   - PCA used to visualize flagged anomalies in 2D
-5. **Synthetic Fraud Validation** — since no real fraud labels exist, synthetic fraud-like transactions were injected (inflated amount, higher login attempts, new device/location) to test whether the model actually catches fraud-shaped behavior
-6. **Result Interpretation** — profiled what distinguishes flagged transactions from normal ones, and ranked the top 1% riskiest transactions by anomaly score
+---
 
-## Key Results
+## ✨ Features
 
-| Metric | Value |
+### 🔎 Exploratory Data Analysis
+
+- **Data Quality Checks** — missing value, duplicate, and outlier detection (IQR method) across the full dataset
+- **Distribution Analysis** — numerical and categorical feature distributions, with skewness scoring to flag heavily imbalanced features
+- **Correlation Heatmap** — pairwise correlation across numerical features to catch redundancy before modeling
+
+### 🧠 Behavioral Feature Engineering
+
+- **Account-relative signals** — amount deviation from each account's own historical average (z-score), not a flat dataset-wide threshold
+- **New device / new location flags** — first-seen detection per account, a common real-world fraud signal
+- **Amount-to-balance ratio** — flags transactions that consume most or all of an account's available balance
+
+### 🚨 Anomaly Detection
+
+- **Isolation Forest** — primary anomaly detection model, scoring every transaction by how easily it separates from the rest of the data
+- **DBSCAN** — secondary, density-based model used for comparison against Isolation Forest
+- **PCA Visualization** — 2D projection of flagged anomalies for visual inspection
+- **Risk-Ranked Output** — transactions ranked by anomaly score rather than a flat yes/no label, surfacing the top 1% highest-risk cases
+
+---
+
+## 📊 Model Performance
+
+Isolation Forest and DBSCAN applied to 2,512 transactions, validated using 50 injected synthetic fraud transactions (since the source dataset has no real fraud labels).
+
+| Metric | Score |
 |---|---|
-| Transactions flagged by Isolation Forest | 76 / 2,512 (~3%) |
-| Transactions flagged by DBSCAN | 157 / 2,512 |
+| Transactions flagged (Isolation Forest) | 76 / 2,512 (~3%) |
+| Transactions flagged (DBSCAN) | 157 / 2,512 |
 | Synthetic fraud recall | 0.68 |
 | Synthetic fraud precision | 0.44 |
 | ROC-AUC (synthetic fraud validation) | 0.98 |
 
-Transactions flagged as anomalies tend to show a higher deviation from the account's typical spending amount, more login attempts, longer transaction duration, and a higher amount-to-balance ratio compared to normal transactions.
+| Class | Precision | Recall | F1-score |
+|---|---|---|---|
+| Normal | 0.99 | 0.98 | 0.99 |
+| Synthetic Fraud | 0.44 | 0.68 | 0.54 |
 
-## Limitations
+Flagged anomalies show a higher amount z-score, more login attempts, longer transaction duration, and a higher amount-to-balance ratio compared to normal transactions. Full breakdown available in `ml/fraud_detection.ipynb`.
 
-- The dataset has no confirmed fraud labels; validation relies on synthetic fraud injection rather than real fraud cases.
-- The `contamination=0.03` parameter used in Isolation Forest is an assumption, not a measured fraud rate.
-- The dataset is relatively small (2,512 rows), which may limit how well results generalize.
-- Isolation Forest and DBSCAN do not fully agree on which transactions are anomalous, reflecting that "anomaly" is not a single fixed definition.
+---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **scikit-learn models used:** IsolationForest, DBSCAN, PCA, StandardScaler
+| Layer | Technology |
+|---|---|
+| Modeling | scikit-learn (IsolationForest, DBSCAN, PCA, StandardScaler) |
+| Data handling | Pandas, NumPy |
+| Visualization | Matplotlib, Seaborn |
+| Notebook | Jupyter (`fraud_detection.ipynb`) |
+| Key packages | `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn` |
 
-## Project Structure
+---
+
+## 📂 Project Structure
 
 ```
 Bank Fraud Detection/
-├── dataset/
-│   └── bank_transactions_data.csv
 ├── ml/
-│   └── fraud_detection.ipynb
-└── README.md
+│   └── fraud_detection.ipynb       # Main analysis and modeling notebook
+│
+├── dataset/
+│   └── bank_transactions_data.csv  # Source transaction dataset
+│
+├── image/
+│   └── notebook_screenshot.png     # Notebook preview image
+│
+├── README.md
+└── requirements.txt
 ```
 
-## How to Run
+---
 
-1. Clone the repository
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.9+
+- `pip`
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/<your-username>/bank-fraud-detection.git
+cd bank-fraud-detection
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the notebook
+
+```bash
+jupyter notebook ml/fraud_detection.ipynb
+```
+
+Run all cells from top to bottom. The notebook covers data quality checks, EDA, feature engineering, anomaly detection modeling, synthetic fraud validation, and result interpretation, in that order.
+
+---
+
+## 🗄️ Dataset
+
+The project uses the [Bank Transaction Dataset for Fraud Detection](https://www.kaggle.com/datasets/valakhorasani/bank-transaction-dataset-for-fraud-detection) from Kaggle — 2,512 synthetic transactions across 16 features, including transaction amount, type, channel, device, location, and login attempts. The dataset does not include a confirmed fraud label, which is why this project is framed as anomaly detection rather than supervised fraud classification, with synthetic fraud injection used for validation instead.
+
+---
+
+## 🤝 Contributing
+
+This started as a solo student portfolio project, but improvements are always welcome. Here's how to contribute:
+
+1. **Fork** the repository.
+2. **Create a feature branch**
    ```bash
-   git clone https://github.com/your-username/bank-fraud-detection.git
-   cd bank-fraud-detection
+   git checkout -b feature/your-feature-name
    ```
-2. Install dependencies
+3. **Make your changes.** Analysis and modeling logic lives in `ml/fraud_detection.ipynb`.
+4. **Commit your changes**
    ```bash
-   pip install pandas numpy matplotlib seaborn scikit-learn
+   git commit -m "Add: short description of your change"
    ```
-3. Open `ml/fraud_detection.ipynb` in Jupyter Notebook or VS Code and run all cells.
+5. **Push to your branch**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+6. **Open a pull request** describing what you changed and why.
 
-## Possible Next Steps
+Since this project doesn't have an automated test suite yet, please manually verify your change by re-running the relevant notebook section before opening a PR, and mention what you tested in the PR description.
 
-- Validate against a dataset with real, confirmed fraud labels
-- Compare additional anomaly detection methods (Local Outlier Factor, autoencoder)
-- Test on a larger dataset to check whether patterns hold at scale
-- Build a dashboard to present flagged transactions for non-technical review
+---
+
+## 🐛 Issues
+
+Found a bug, or something not working as expected? Check the [Issues](https://github.com/<your-username>/bank-fraud-detection/issues) page first to see if it's already been reported.
+
+If not, feel free to open a new issue. To help track it down quickly, please include:
+
+- A clear, descriptive title (e.g. "IsolationForest fails on missing feature column")
+- Steps to reproduce the issue
+- What you expected to happen vs. what actually happened
+- Relevant error output/traceback from the notebook
+- Which section of the notebook it occurs in (EDA, feature engineering, modeling, or validation)
