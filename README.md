@@ -11,10 +11,6 @@
   <img src="https://img.shields.io/badge/Matplotlib-11557C?style=for-the-badge&logo=python&logoColor=white" alt="Matplotlib" />
 </p>
 
-<p align="center">
-  <img src="image/notebook_screenshot.png" width="700" alt="Fraud detection notebook screenshot" />
-</p>
-
 <br>
 
 ## 📑 Table of Contents
